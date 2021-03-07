@@ -8,6 +8,8 @@ There are two python scripts for interacting with Dropbox API
 
 **dbox_sync_download.py** download decrypted zip-file to local computer
 
+**dbox_sync_download.py** - local library
+
 ## Prerequisites
 
 Debian-like operating systems.

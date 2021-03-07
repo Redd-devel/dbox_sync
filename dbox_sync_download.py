@@ -3,8 +3,8 @@ import os
 import sys
 
 from dropbox.exceptions import ApiError
-
 from dbox_config import DOWNLOAD_DIR, CURRENT_DATE
+from dbox_sync_lib import instantiate_dropbox
 
 def download_file():
     "Download actual snapshot from Dropbox"
@@ -29,22 +29,6 @@ def checkFileDetails(dbox_file, dbox_instance):
         print(f'File {dbox_file} found')
     else:
         sys.exit(f'File {dbox_file} haven\'t found! Exit.')
-
-
-def instantiate_dropbox():
-    """Make Dropbox instance"""
-    token = os.environ.get("DBOX_TOKEN")
-    if (len(token) == 0):
-        sys.exit("ERROR: Looks like you didn't add your access token.")
-    print("Creating a Dropbox object...")
-    dbx = dropbox.Dropbox(token)
-    
-    try:
-        dbx.users_get_current_account()
-    except AuthError as err:
-        sys.exit(
-            "ERROR: Invalid access token; try re-generating an access token from the app console on the web.")
-    return dbx
 
 
 if __name__ == '__main__':
