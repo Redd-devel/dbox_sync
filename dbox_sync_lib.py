@@ -2,7 +2,7 @@ import dropbox
 import os
 import sys
 
-from dropbox.exceptions import AuthError
+from dropbox.exceptions import ApiError, AuthError
 
 def instantiate_dropbox():
     """ Make Dropbox instance"""
@@ -21,7 +21,9 @@ def instantiate_dropbox():
 
 def clean_dbox_folder(dbox_dir):
     """Removes all files in dbox_dir"""
-    # need try except blocks!!!!!!!!!!
     dbx = instantiate_dropbox()
     for file in dbx.files_list_folder(dbox_dir).entries:
-        dbx.files_delete_v2(file.path_display)
+        try:
+            dbx.files_delete_v2(file.path_display)
+        except ApiError as err:
+            print(f'Something wrong with {file.path_display}. Reason: {err}')
