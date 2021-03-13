@@ -6,7 +6,7 @@ from dropbox.exceptions import ApiError, AuthError
 
 def instantiate_dropbox():
     """ Make Dropbox instance"""
-    token = os.environ.get("DBOX_TOKEN")
+    token = os.environ.get("DBOX_TOKEN", '')
     if (len(token) == 0):
         sys.exit("ERROR: Looks like you didn't add your access token.")
     print("Creating a Dropbox object...")
