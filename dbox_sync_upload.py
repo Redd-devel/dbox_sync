@@ -16,7 +16,7 @@ def make_encrypted_backup():
     remove_old_files(ROOT_BACKUP_DIR)
     os.mkdir(full_backup_dir)
     for item in SOURCE_ITEMS:
-        rsync("-avrh", "--exclude=*.pyc", item, full_backup_dir)
+        rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode" item, full_backup_dir)
     os.chdir(ROOT_BACKUP_DIR)
     shutil.make_archive(CURRENT_DATE, "zip", CURRENT_DATE)
     shutil.rmtree(CURRENT_DATE)
