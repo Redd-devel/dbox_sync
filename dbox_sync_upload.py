@@ -58,12 +58,13 @@ def source_list_files(dbox_instance):
 
 def remove_old_files(temp_dir):
     """Removes all files in 'temp_dir' folder"""
-    for file in os.listdir(temp_dir):
-        full_file_path = os.path.join(temp_dir, file)
-        try:
-            os.unlink(full_file_path)
-        except Exception as err:
-            print(f'Failed to remove {full_file_path}. Reason: {err}')
+    with os.scandir(temp_dir) as curr_dir:
+        for item in curr_dir:
+            if item.is_file():
+                try:
+                    os.unlink(item)
+                except Exception as err:
+                    print(f'Failed to remove {item}. Reason: {err}')
 
 
 if __name__ == '__main__':  
