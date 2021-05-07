@@ -1,6 +1,7 @@
 import dropbox
 import os
 import sys
+import glob
 
 from dropbox.exceptions import ApiError, AuthError
 
@@ -27,3 +28,7 @@ def clean_dbox_folder(dbox_dir):
             dbx.files_delete_v2(file.path_display)
         except ApiError as err:
             print(f'Something wrong with {file.path_display}. Reason: {err}')
+
+def collect_files(filemask: str) -> list():
+    """Collect files by a mask"""
+    return glob.glob(filemask)
