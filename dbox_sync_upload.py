@@ -8,7 +8,6 @@ from dropbox.files import WriteMode
 from dropbox.exceptions import ApiError
 
 from dbox_config import ROOT_BACKUP_DIR, SOURCE_ITEMS, GPG_ID, CURRENT_DATE, DBOX_FOLDER
-# from dbox_config import SOURCE_SYSTEM_ITEMS, SOURCE_CUSTOM_ITEMS
 from dbox_sync_lib import instantiate_dropbox, collect_files
 
 
@@ -34,8 +33,6 @@ def push_to_dbox():
     """Uploads content of backup files to Dropbox"""
     dbx = instantiate_dropbox()
     for item in collect_files('*.asc'):
-
-    # localfile = os.path.join(ROOT_BACKUP_DIR, CURRENT_DATE+".zip.asc")
         dbox_path = os.path.join(DBOX_FOLDER, item) # Keep the forward slash before destination filename
         with open(item, 'rb') as f:
             # We use WriteMode=overwrite to make sure that the settings in the file

@@ -4,9 +4,9 @@
 
 There are two python scripts for interacting with Dropbox API
 
-**dbox_sync_upload.py** makes zip-file, encrypts one with gpg and pushes to Dropbox.
+**dbox_sync_upload.py** - makes zip-file, encrypts one with gpg and pushes to Dropbox.
 
-**dbox_sync_download.py** download decrypted zip-file to local computer
+**dbox_sync_download.py** - downloads decrypted zip-file to local computer
 
 **dbox_sync_download.py** - local library
 
@@ -41,7 +41,11 @@ from datetime import datetime
 
 GPG_ID = 'email@email.com'
 ROOT_BACKUP_DIR = '/path/to/backup/dir'
-SOURCE_ITEMS = ('/some/folder','/some/file.ext',)
+SOURCE_ITEMS = {
+    'projects': ('/some/folder','/some/file.ext',),
+    'custom': ('/some/custom/folder','/some/custom/file.ext',)
+}
 DOWNLOAD_DIR = '/download/folder'
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
+DBOX_FOLDER = '/folder'
 ```
