@@ -1,19 +1,19 @@
-import dropbox
 import os
 import sys
 
 from dropbox.exceptions import ApiError
-from dbox_config import DOWNLOAD_DIR, CURRENT_DATE, DBOX_FOLDER
-from dbox_sync_lib import instantiate_dropbox
+from dbox_config import DOWNLOAD_DIR
+from dbox_sync_lib import instantiate_dropbox, last_files_finder
 
 def download_file():
-    "Download actual snapshot from Dropbox"
+    """Download actual snapshot from Dropbox"""
     dbx = instantiate_dropbox()
-    filemask = "projects_" + CURRENT_DATE + ".zip.asc"
-    dbox_file = os.path.join(DBOX_FOLDER, filemask)
+    dbox_file = last_files_finder()
+    filemask = os.path.basename(dbox_file)
     destin_file = os.path.join(DOWNLOAD_DIR, filemask)
 
-    checkFileDetails(filemask, dbx)
+    if not dbox_file:
+        sys.exit("File doesn\'t exist")
 
     print("Downloading " + dbox_file + " to " + destin_file + "...")
     try:
@@ -21,14 +21,6 @@ def download_file():
     except ApiError as err:
         print(err)
         sys.exit()
-
-
-def checkFileDetails(dbox_file, dbox_instance):
-    "Check a necessary file in Dropbox"
-    if len(dbox_instance.files_search(DBOX_FOLDER, dbox_file).matches) > 0:
-        print(f'File {dbox_file} found')
-    else:
-        sys.exit(f'File {dbox_file} haven\'t found! Exit.')
 
 
 if __name__ == '__main__':
