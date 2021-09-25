@@ -1,10 +1,10 @@
 import sys
-from shared_libs.dbox_sync_lib import download_file, upload_file
+from shared_libs.dbox_sync_lib import download_file, upload_file, sync_entities
 
 
 def main():
     if sys.argv[1] == "upload":
-        upload_file()
+        sync_entities()
     elif sys.argv[1] == "download":
         download_file()
     else:
