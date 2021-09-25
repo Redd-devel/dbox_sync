@@ -9,7 +9,8 @@ from sh import rsync, gpg
 
 from dropbox.exceptions import ApiError, AuthError
 from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, \
-                GPG_ID, CURRENT_DATE, DBOX_FOLDER
+                GPG_ID, CURRENT_DATE, DBOX_FOLDER, \
+                RETENTION_PEROD
 
 
 def upload_file():
@@ -17,6 +18,7 @@ def upload_file():
     sync_entities(SOURCE_ITEMS)
     dbx = instantiate_dropbox()
     for item in collect_files('*.asc'):
+        # if 
         dbox_path = Path(DBOX_FOLDER).joinpath(item).__str__()
         with open(item, 'rb') as f:
             # We use WriteMode=overwrite to make sure that the settings in the file
@@ -36,7 +38,8 @@ def upload_file():
                 else:
                     print(err)
                     sys.exit()
-    dest_list_files(dbx)
+    clean_dbox_folder(DBOX_FOLDER)
+    dbox_list_files(dbx)
 
 def download_file():
     """Download actual snapshot from Dropbox"""
@@ -73,14 +76,17 @@ def instantiate_dropbox():
                 an access token from the app console on the web.")
     return dbx
 
-def clean_dbox_folder(dbox_dir):
+def clean_dbox_folder(dbox_dir, days=RETENTION_PEROD):
     """Removes all files in dbox_dir"""
     dbx = instantiate_dropbox()
+    time_diff = datetime.datetime.now() - datetime.timedelta(days=days)
     for file in dbx.files_list_folder(dbox_dir).entries:
-        try:
-            dbx.files_delete_v2(file.path_display)
-        except ApiError as err:
-            print(f'Something wrong with {file.path_display}. Reason: {err}')
+            if file.server_modified < time_diff:
+                print(f' File {file.path_display} be removed')
+                try:
+                    dbx.files_delete_v2(file.path_display)
+                except ApiError as err:
+                    print(f'Something wrong with {file.path_display}. Reason: {err}')
 
 def last_files_finder(dbox_obj):
     """Find last actual file"""
@@ -95,15 +101,16 @@ def last_files_finder(dbox_obj):
         days += 1
     return
 
-def dest_list_files(dbox_instance):
-    "Files list of destination DropBox folder"
+def dbox_list_files(dbox_instance, last=6):
+    """Files list of destination DropBox folder"""
     print("Files list:")
-    for entry in dbox_instance.files_list_folder(DBOX_FOLDER).entries:
+    for entry in dbox_instance.files_list_folder(DBOX_FOLDER).entries[-last:]:
         print(entry.name)
 
 
 def collect_files(filemask: str) -> list:
     """Collect files by a mask"""
+    print(glob.glob(filemask))
     return glob.glob(filemask)
 
 def sync_entities(source_list):
@@ -133,6 +140,3 @@ def remove_old_files(temp_dir):
                     os.unlink(item)
                 except Exception as err:
                     print(f'Failed to remove {item}. Reason: {err}')
-
-if __name__ == '__main__':
-    print(download_file())

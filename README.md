@@ -1,14 +1,10 @@
-# Dropbox Upload/Download scripts
+# Dropbox Upload/Download utility
 
 ## Short description
 
 There are two python scripts for interacting with Dropbox API
 
-**dbox_sync_upload.py** - makes zip-file, encrypts one with gpg and pushes to Dropbox.
-
-**dbox_sync_download.py** - downloads decrypted zip-file to local computer
-
-**dbox_sync_download.py** - local library
+**dbox_sync_lib.py** - 
 
 ## Prerequisites
 
@@ -40,12 +36,11 @@ I use an environment variable keep token:
 from datetime import datetime
 
 GPG_ID = 'email@email.com'
-ROOT_BACKUP_DIR = '/path/to/backup/dir'
 SOURCE_ITEMS = {
     'projects': ('/some/folder','/some/file.ext',),
     'custom': ('/some/custom/folder','/some/custom/file.ext',)
 }
-DOWNLOAD_DIR = '/download/folder'
+WORK_DIR = '/download/folder'
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 DBOX_FOLDER = '/folder'
 ```
