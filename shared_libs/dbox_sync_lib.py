@@ -14,7 +14,7 @@ from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, \
 
 def upload_file(dbox_instance, dest_folder, dest_file):
     """Uploads content of backup files to Dropbox"""
-    dbox_path = "/" + Path(dest_folder).joinpath(dest_file).__str__()
+    dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
     with open(dest_file, 'rb') as f:
         # We use WriteMode=overwrite to make sure that the settings in the file
         # are changed on upload
@@ -34,7 +34,7 @@ def upload_file(dbox_instance, dest_folder, dest_file):
                 print(err)
                 sys.exit()
     clean_dbox_folder(dbox_instance, dest_folder)
-    dbox_list_files()
+    dbox_list_files(dbox_instance, dest_folder)
 
 
 def download_file():
@@ -43,17 +43,20 @@ def download_file():
     dbox_file = last_files_finder(dbx)
     filemask = Path(dbox_file).name
     destin_file = Path(WORK_DIR).joinpath(filemask).__str__()
-    print(destin_file)
+    # print(destin_file)
 
     if not dbox_file:
         sys.exit("File doesn\'t exist")
 
     print("Downloading " + dbox_file + " to " + destin_file + "...")
+    print(f'gpg -d -o {filemask[:23]} {filemask}')
     try:
         dbx.files_download_to_file(destin_file, dbox_file)
     except ApiError as err:
         print(err)
         sys.exit()
+    os.chdir(WORK_DIR)
+    gpg("-d", "-o", filemask[:23], filemask)
 
 def instantiate_dropbox():
     """ Make Dropbox instance"""
@@ -75,7 +78,7 @@ def instantiate_dropbox():
 def clean_dbox_folder(dbox_instance, dbox_dir, days=RETENTION_PEROD):
     """Removes all files in dbox_dir"""
     time_diff = datetime.datetime.now() - datetime.timedelta(days=days)
-    for file in dbox_instance.files_list_folder(dbox_dir).entries:
+    for file in dbox_instance.files_list_folder("/"+dbox_dir).entries:
             if file.server_modified < time_diff:
                 print(f' File {file.path_display} be removed')
                 try:
@@ -114,6 +117,7 @@ def sync_entities():
             rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode", "--delete", source_dir, full_backup_dir) # "-R"
         # rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode", "--delete", folder, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
+        folder = "/" + folder
         upload_file(dbx, folder, encrypted_file)
         
         
