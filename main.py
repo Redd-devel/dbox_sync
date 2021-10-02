@@ -1,22 +1,15 @@
 import sys
-from shared_libs.dbox_sync_lib import download_file, upload_file, sync_entities
+from shared_libs.dbox_sync_lib import download, upload
 
 
 def main():
     if sys.argv[1] == "upload":
-        sync_entities()
+        upload()
     elif sys.argv[1] == "download":
-        download_file()
+        download()
     else:
         sys.exit(1)
-# синхрон файлов по папкам, архивация файлов по тематическим разделам, шифрование файлов
-# загрузка на сервер, список загруженных файлов
-# скачивание файлов, расшифровка файлов, разархивация файлов, синхрон с папками
 
 # при синхроне на закачку лишние файлы должны удаляться
 
 # заменить там где можно os.path на pathlib
-
-
-if __name__ == '__main__':
-    main()
