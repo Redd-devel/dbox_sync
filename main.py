@@ -8,8 +8,7 @@ def main():
     elif sys.argv[1] == "download":
         download()
     else:
+        print("error")
         sys.exit(1)
 
-# при синхроне на закачку лишние файлы должны удаляться
-
-# заменить там где можно os.path на pathlib
+main()
