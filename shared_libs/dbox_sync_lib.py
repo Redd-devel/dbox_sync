@@ -9,22 +9,21 @@ from sh import rsync, gpg
 from dropbox.exceptions import ApiError, AuthError
 from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, \
                 GPG_ID, CURRENT_DATE, RETENTION_PEROD
-
+from shared_libs.fs_lib import delete_old_project
 
 def upload():
     """Copy files, folders to destination"""
-    source_list = SOURCE_ITEMS
+    delete_old_project()
     dbx = instantiate_dropbox()
-    remove_old_files(WORK_DIR)
-    relative_dirs = list(source_list.keys())
+    relative_dirs = list(SOURCE_ITEMS.keys())
     for folder in relative_dirs:
         full_backup_dir = Path(WORK_DIR).joinpath(folder).__str__()
-        for source_dir in source_list[folder]:
+        for source_dir in SOURCE_ITEMS[folder]:
             rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode", "--delete", source_dir, full_backup_dir) # "-R"
-        # rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode", "--delete", folder, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
         folder = "/" + folder
         upload_file_to_cloud(dbx, folder, encrypted_file)
+    remove_old_files(WORK_DIR)
 
 
 def download():
@@ -34,20 +33,25 @@ def download():
     if not dbox_file:
         sys.exit("File doesn\'t exist")
     filemask = Path(dbox_file).name
-    destin_file = Path(WORK_DIR).joinpath(filemask).__str__()
-    # print(destin_file)
+    # destin_file = Path(WORK_DIR).joinpath(filemask).__str__()
+    destin_file = os.path.join(WORK_DIR, 'projects', filemask)
+    print(destin_file)
 
     print("Downloading " + dbox_file + " to " + destin_file + "...")
-    # print(f'gpg -d -o {filemask[:23]} {filemask}')
+    print(f'gpg -d -o {filemask[:23]} {filemask}')
+    projects_dir = os.path.join(WORK_DIR, 'projects')
+    os.chdir(projects_dir)
     try:
         dbx.files_download_to_file(destin_file, dbox_file)
     except ApiError as err:
         print(err)
         sys.exit()
-    os.chdir(os.path.join(WORK_DIR, 'projects'))
     gpg("-d", "-o", filemask[:23], filemask)
     shutil.unpack_archive(filemask[:23])
-    
+    for destination in SOURCE_ITEMS['projects']:
+        source = os.path.join(projects_dir, os.path.basename(destination))
+        rsync("-avrh", "--exclude=.git", "--exclude=*.pyc", "--exclude=.vscode", "--delete", source, destination)
+    remove_old_files(projects_dir)
 
 def instantiate_dropbox():
     """ Make Dropbox instance"""
@@ -77,7 +81,8 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
             dbox_instance.files_upload(f.read(), dbox_path, 
                 mode=dropbox.files.WriteMode('overwrite'))
         except ApiError as err:
-            # This checks for the specific error where a user doesn't have enough Dropbox space quota to upload this file
+            # This checks for the specific error where a user doesn't have
+            # enough Dropbox space quota to upload this file
             if (err.error.is_path() and
                     err.error.get_path().error.is_insufficient_space()):
                 sys.exit("ERROR: Cannot back up; insufficient space.")
