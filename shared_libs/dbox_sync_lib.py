@@ -50,7 +50,7 @@ def download():
     shutil.unpack_archive(filemask[:23])
     for destination in SOURCE_ITEMS['projects']:
         source = os.path.join(projects_dir, os.path.basename(destination))
-        rsync("-avrh", "--exclude=.git", "--exclude=*.pyc", "--exclude=.vscode", "--delete", source, destination)
+        rsync("-avrh", "--exclude=.git", "--exclude=*.pyc", "--exclude=.vscode", "--delete", source, os.path.dirname(destination))
     remove_old_files(projects_dir)
 
 def instantiate_dropbox():
