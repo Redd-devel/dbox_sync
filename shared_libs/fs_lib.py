@@ -1,7 +1,7 @@
 import os
 import shutil
-# from shared_libs.dbox_config import SOURCE_ITEMS, WORK_DIR
-from dbox_config import SOURCE_ITEMS, WORK_DIR
+from shared_libs.dbox_config import SOURCE_ITEMS, WORK_DIR
+# from dbox_config import SOURCE_ITEMS, WORK_DIR
 
 
 
