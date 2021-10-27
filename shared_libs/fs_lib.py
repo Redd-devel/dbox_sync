@@ -10,11 +10,14 @@ def delete_old_project():
     for item in SOURCE_ITEMS.keys():
         os.chdir(os.path.join(WORK_DIR, item))
         fs_list_dirs = os.listdir()
-        print(fs_list_dirs)
         for synced_dir in SOURCE_ITEMS[item]:
-            print(os.path.basename(synced_dir))
-            fs_list_dirs.remove(os.path.basename(synced_dir))
-            print(fs_list_dirs)
+            try:
+                fs_list_dirs.remove(os.path.basename(synced_dir))
+            except ValueError:
+                continue
+            # print(fs_list_dirs)
+        if not fs_list_dirs:
+            return
         for dir_to_remove in fs_list_dirs:
             try:
                 shutil.rmtree(dir_to_remove)
