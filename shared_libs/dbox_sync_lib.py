@@ -1,3 +1,4 @@
+import subprocess
 import dropbox
 import os
 from pathlib import Path
@@ -46,7 +47,9 @@ def download():
     except ApiError as err:
         print(err)
         sys.exit()
-    gpg("-d", "-o", filemask[:23], filemask)
+    # gpg("-d", "-o", filemask[:23], filemask)
+    completed = subprocess.run(['gpg', '-d', '-o', filemask[:23], filemask])
+    print('return_code:', completed.returncode)
     shutil.unpack_archive(filemask[:23])
     for destination in SOURCE_ITEMS['projects']:
         source = os.path.join(projects_dir, os.path.basename(destination))
