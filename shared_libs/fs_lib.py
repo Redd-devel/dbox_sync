@@ -1,8 +1,7 @@
 import os
 import shutil
+import subprocess
 from shared_libs.dbox_config import SOURCE_ITEMS, WORK_DIR
-# from dbox_config import SOURCE_ITEMS, WORK_DIR
-
 
 
 def delete_old_project():
@@ -15,7 +14,6 @@ def delete_old_project():
                 fs_list_dirs.remove(os.path.basename(synced_dir))
             except ValueError:
                 continue
-            # print(fs_list_dirs)
         if not fs_list_dirs:
             return
         for dir_to_remove in fs_list_dirs:
@@ -23,6 +21,23 @@ def delete_old_project():
                 shutil.rmtree(dir_to_remove)
             except OSError as err:
                 print(f'Cannot remove {dir_to_remove}. Error {err}')
+
+
+def sync_local_dirs(source, dest):
+    """Synchronizes 2 folders"""
+    subprocess_args = [
+        'rsync', '-avrh',
+        '--exclude=*.pyc',
+        '--exclude=*.log*',
+        '--exclude=.vscode',
+        '--delete',
+        source,
+        dest
+    ]
+    try:
+        subprocess.check_call(subprocess_args)
+    except subprocess.CalledProcessError as err:
+        print('PRINT:', err)
 
 
 if __name__ == '__main__':
