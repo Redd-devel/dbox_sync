@@ -5,12 +5,13 @@ from pathlib import Path
 import sys
 import datetime
 import shutil
-from sh import rsync, gpg
+from dotenv import dotenv_values
 
 from dropbox.exceptions import ApiError, AuthError
 from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, \
                 GPG_ID, CURRENT_DATE, RETENTION_PEROD
-from shared_libs.fs_lib import delete_old_project
+from shared_libs.fs_lib import delete_old_project, sync_local_dirs
+
 
 def upload():
     """Copy files, folders to destination"""
@@ -20,7 +21,7 @@ def upload():
     for folder in relative_dirs:
         full_backup_dir = Path(WORK_DIR).joinpath(folder).__str__()
         for source_dir in SOURCE_ITEMS[folder]:
-            rsync("-avrh", "--exclude=*.pyc", "--exclude=*.log*", "--exclude=.vscode", "--delete", source_dir, full_backup_dir) # "-R"
+            sync_local_dirs(source_dir, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
         folder = "/" + folder
         upload_file_to_cloud(dbx, folder, encrypted_file)
@@ -31,15 +32,13 @@ def download():
     """Download actual snapshot from Dropbox"""
     dbx = instantiate_dropbox()
     dbox_file = last_files_finder(dbx)
+    config = dotenv_values('.env')
     if not dbox_file:
         sys.exit("File doesn\'t exist")
     filemask = Path(dbox_file).name
-    # destin_file = Path(WORK_DIR).joinpath(filemask).__str__()
     destin_file = os.path.join(WORK_DIR, 'projects', filemask)
-    print(destin_file)
 
     print("Downloading " + dbox_file + " to " + destin_file + "...")
-    print(f'gpg -d -o {filemask[:23]} {filemask}')
     projects_dir = os.path.join(WORK_DIR, 'projects')
     os.chdir(projects_dir)
     try:
@@ -47,13 +46,18 @@ def download():
     except ApiError as err:
         print(err)
         sys.exit()
-    # gpg("-d", "-o", filemask[:23], filemask)
-    completed = subprocess.run(['gpg', '-d', '-o', filemask[:23], filemask])
-    print('return_code:', completed.returncode)
+    try:
+        subprocess.run(
+        ['gpg', '--pinentry-mode', 'loopback', 
+        '--passphrase', config["GPG_PASS"], '--batch', '-d', '-o',
+         filemask[:23], filemask]
+    )
+    except subprocess.CalledProcessError as err:
+        print('ERROR: ', err)
     shutil.unpack_archive(filemask[:23])
     for destination in SOURCE_ITEMS['projects']:
         source = os.path.join(projects_dir, os.path.basename(destination))
-        rsync("-avrh", "--exclude=.git", "--exclude=*.pyc", "--exclude=.vscode", "--delete", source, os.path.dirname(destination))
+        sync_local_dirs(source, os.path.dirname(destination))
     remove_old_files(projects_dir)
 
 def instantiate_dropbox():
@@ -134,7 +138,10 @@ def make_encrypted_files(path):
     base_file_name = path + '_' + CURRENT_DATE
     shutil.make_archive(base_file_name, "zip", path)
     arch_name = base_file_name + ".zip"
-    gpg("-ear", GPG_ID, arch_name)
+    try:
+        subprocess.run(['gpg', '-ear', GPG_ID, arch_name])
+    except subprocess.CalledProcessError as err:
+        print('ERROR:', err)
     return arch_name + ".asc"
 
 def remove_old_files(temp_dir):
