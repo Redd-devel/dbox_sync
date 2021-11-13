@@ -1,12 +1,12 @@
 import sys
-from shared_libs.dbox_sync_lib import download, upload
+from shared_libs.sync_lib import APIActions
 
 
 def main():
     if sys.argv[1] == "upload":
-        upload()
+        APIActions().upload()
     elif sys.argv[1] == "download":
-        download()
+        APIActions().download()
     else:
         print("error")
         sys.exit(1)
