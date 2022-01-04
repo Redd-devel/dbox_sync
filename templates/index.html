@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% for cat, msg in get_flashed_messages(True) %}
+    <div class="flash {{ cat }}">{{ msg }}</div>
+{% endfor %}
+<div class="btn_container">
+    <form method="post" action="">
+        {% for dir in dbox_dirs %}
+           <label><input type="checkbox" name="shelves" value={{ dir }}>{{ dir }}</label>
+        {% endfor %}
+        <label id="sync_ok"><input type="checkbox" name="sync" value="sync">sync</label>
+        <button name="upload" type="submit" value="upload">Upload</button>
+        <button name="download" type="submit" value="download">Download</button>
+    </form>
+    
+</div>
+
+{% endblock content %}

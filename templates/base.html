@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dropbox API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <h1>DropBox Синхронизатор</h1>
+        </div>
+            <div class="sidebar_container">
+                {% for shelve in dbox_files %}
+                <div class="sidebar">
+                    {% for file in shelve[:5] %}
+                        <div>{{ file }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+            </div>
+
+            {% block content %}
+
+            {% endblock content %}
+    </div>
+
+</body>
+</html>
