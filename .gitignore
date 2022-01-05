@@ -2,3 +2,5 @@ dbox_config.py
 *.pyc
 .vscode
 .env
+*.json
+tg_bot.py
