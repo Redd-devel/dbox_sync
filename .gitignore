@@ -3,4 +3,3 @@ dbox_config.py
 .vscode
 .env
 *.json
-tg_bot.py
