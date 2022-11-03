@@ -9,12 +9,14 @@ from dotenv import dotenv_values
 
 from dropbox.exceptions import ApiError, AuthError
 from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, RETENTION_PEROD
-from shared_libs.fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir
+from shared_libs.fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
 
 
 def upload():
     """Copy files, folders to destination"""
     # need refactoring
+    if not check_gpg_key:
+        sys.exit()
     dbx = instantiate_dropbox()
     for folder in keys_list():
         delete_old_project(folder)
@@ -28,6 +30,8 @@ def upload():
 def download():
     """Download actual snapshot from Dropbox"""
     # reviewed
+    if not check_gpg_key:
+        sys.exit()
     dbx = instantiate_dropbox()
     config = dotenv_values('.env')
     for item in keys_list():
