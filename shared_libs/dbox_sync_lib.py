@@ -51,11 +51,11 @@ def download():
             subprocess.run(
             ['gpg', '--pinentry-mode', 'loopback', 
             '--passphrase', config["GPG_PASS"], '--batch', '-d', '-o',
-            filemask[:23], filemask]
+            filemask[-1:-5:-1], filemask]
         )
         except subprocess.CalledProcessError as err:
             print(f'ERROR: {err}')
-        shutil.unpack_archive(filemask[:23])
+        shutil.unpack_archive(filemask[-1:-5:-1])
         for destination in SOURCE_ITEMS[item]:
             source = os.path.join(item_dir, os.path.basename(destination))
             sync_local_dirs(source, os.path.dirname(destination))
