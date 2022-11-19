@@ -39,6 +39,7 @@ def download():
         if not dbox_file:
             continue
         filemask = Path(dbox_file).name
+        zipfile_mask = os.path.splitext(filemask)[0]
         destin_file = os.path.join(WORK_DIR, item, filemask)
         print("Downloading " + dbox_file + " to " + destin_file + "...")
         item_dir = os.path.join(WORK_DIR, item)
@@ -51,11 +52,11 @@ def download():
             subprocess.run(
             ['gpg', '--pinentry-mode', 'loopback', 
             '--passphrase', config["GPG_PASS"], '--batch', '-d', '-o',
-            filemask[-1:-5:-1], filemask]
+            zipfile_mask, filemask]
         )
         except subprocess.CalledProcessError as err:
             print(f'ERROR: {err}')
-        shutil.unpack_archive(filemask[-1:-5:-1])
+        shutil.unpack_archive(zipfile_mask)
         for destination in SOURCE_ITEMS[item]:
             source = os.path.join(item_dir, os.path.basename(destination))
             sync_local_dirs(source, os.path.dirname(destination))
