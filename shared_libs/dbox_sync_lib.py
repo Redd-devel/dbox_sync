@@ -1,13 +1,16 @@
 import subprocess
 import dropbox
+import yadisk
 import os
 from pathlib import Path
 import sys
 import datetime
 import shutil
 from dotenv import dotenv_values
+import pytz
 
 from dropbox.exceptions import ApiError, AuthError
+from yadisk.exceptions import YaDiskError
 from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, RETENTION_PEROD
 from shared_libs.fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
 
@@ -18,6 +21,7 @@ def upload():
     if not check_gpg_key:
         sys.exit()
     dbx = instantiate_dropbox()
+    yad = yad_instance()
     for folder in keys_list():
         delete_old_project(folder)
         full_backup_dir = Path(WORK_DIR).joinpath(folder).__str__()
@@ -25,6 +29,7 @@ def upload():
             sync_local_dirs(source_dir, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
         upload_file_to_cloud(dbx, f'/{folder}', encrypted_file)
+        upload_file_to_cloud_ya(yad, f'/{folder}', encrypted_file)
     remove_old_files(WORK_DIR)
 
 def download():
@@ -137,4 +142,41 @@ def dbox_list_files(dbox_instance, dbox_dir, last=6):
     # reviewed
     print(f'Last {last} files list:')
     for entry in dbox_instance.files_list_folder(dbox_dir).entries[-last:]:
+        print(entry.name)
+
+
+
+def upload_file_to_cloud_ya(yad_instan, dest_folder, dest_file):
+    yad_path = os.path.join("/", dest_folder, dest_file)
+    with open(dest_file, "rb") as file:
+        yad_instan.upload(file, yad_path, overwrite=True)
+    clean_ya_folder(yad_instan, dest_folder)
+    yad_list_files(yad_instan, dest_folder)
+
+def yad_instance():
+    """Create Yandex disk instance"""
+    # config = dotenv_values('.env')
+    # token = yadisk.YaDisk(token=config["YA_TOKEN"])
+    yad_inst = yadisk.YaDisk(token=os.environ.get("YA_DISK_TOKEN", ''))
+    if not (yad_inst.check_token()):
+        print("Token is invalid")
+        sys.exit(1)
+    print("Yandex Disk instance successfully created!")
+    return yad_inst
+
+def clean_ya_folder(yad_instance, yad_dir, days=RETENTION_PEROD):
+    """Clean yandex folder"""
+    time_diff = datetime.datetime.now() - datetime.timedelta(days=days)
+    for file in list(yad_instance.listdir(yad_dir)):
+        if file.created < time_diff.replace(tzinfo=pytz.utc):
+            print(f' File {file.name} be removed')
+            try:
+                yad_instance.remove(file.path)
+            except YaDiskError as err:
+                print(f'Something wrong with {file.path}. Reason: {err}')
+
+def yad_list_files(yad_instance, yad_dir, last=6):
+    """Files list of destination YaDisk folder"""
+    print(f'Last {last} files list:')
+    for entry in list(yad_instance.listdir(yad_dir))[-last:]:
         print(entry.name)
