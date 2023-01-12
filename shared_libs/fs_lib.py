@@ -66,16 +66,6 @@ def make_encrypted_files(path):
         print('ERROR:', err)
     return arch_name + ".asc"
 
-# def check_gpg() -> bool:
-#     """Chech installed gpg"""
-#     # in developing
-#     devnull = open(os.devnull,"w")
-#     retval = subprocess.call(["dpkg","-s","gpg"],stdout=devnull,stderr=subprocess.STDOUT)
-#     devnull.close()
-#     if retval != 0:
-#         print("Package gpg not installed.")
-#         return False
-#     return True
 
 def check_gpg_key() -> bool:
     """Check gpg_id"""
@@ -89,6 +79,7 @@ def keys_list() -> list:
     return list(SOURCE_ITEMS.keys())
 
 def check_dir(folder: str) -> None:
+    """Check existing directory"""
     if not os.path.isdir(folder):
         os.mkdir(folder)
         print(f'{folder} created')
