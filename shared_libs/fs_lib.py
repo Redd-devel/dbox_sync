@@ -1,7 +1,10 @@
 import os
 import shutil
 import subprocess
-from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE, GPG_ID
+from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
 
 
 def delete_old_project(folder):
@@ -61,7 +64,7 @@ def make_encrypted_files(path):
         print('ERROR:', err)
     arch_name = base_file_name + ".zip"
     try:
-        subprocess.run(['gpg', '-ear', GPG_ID, arch_name])
+        subprocess.run(['gpg', '-ear', config["GPG_ID"], arch_name])
     except subprocess.CalledProcessError as err:
         print('ERROR:', err)
     return arch_name + ".asc"
@@ -70,7 +73,7 @@ def make_encrypted_files(path):
 def check_gpg_key() -> bool:
     """Check gpg_id"""
     retval = subprocess.run(["gpg", "-k"], stdout=subprocess.PIPE, encoding='utf-8')
-    if GPG_ID not in retval.stdout:
+    if config["GPG_ID"] not in retval.stdout:
         print("There is no target key or gnupg is not installed. Program aborted")
         return False
     return True

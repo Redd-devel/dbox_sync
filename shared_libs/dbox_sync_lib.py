@@ -16,6 +16,8 @@ from .fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_
 
 __all__ = ["download", "upload"]
 
+config = dotenv_values('.env')
+
 def upload():
     """Copy files, folders to destination"""
     # need refactoring
@@ -39,7 +41,6 @@ def download():
     if not check_gpg_key:
         sys.exit()
     dbx = instantiate_dropbox()
-    config = dotenv_values('.env')
     for item in keys_list():
         dbox_file = last_files_finder(dbx, item)
         if not dbox_file:
@@ -71,7 +72,8 @@ def download():
 def instantiate_dropbox():
     """ Make Dropbox instance"""
     # reviewed
-    token = os.environ.get("DBOX_TOKEN", '')
+    # token = os.environ.get("DBOX_TOKEN", '')
+    token = config["DBOX_TOKEN"]
     if (len(token) == 0):
         sys.exit("ERROR: Looks like your access token is empty.")
     print("Creating a Dropbox object...")
@@ -157,8 +159,8 @@ def upload_file_to_cloud_ya(yad_instan, dest_folder, dest_file):
 def yad_instance():
     """Create Yandex disk instance"""
     # config = dotenv_values('.env')
-    # token = yadisk.YaDisk(token=config["YA_TOKEN"])
-    yad_inst = yadisk.YaDisk(token=os.environ.get("YA_DISK_TOKEN", ''))
+    yad_inst = yadisk.YaDisk(token=config["YA_TOKEN"])
+    # yad_inst = yadisk.YaDisk(token=os.environ.get("YA_DISK_TOKEN", ''))
     if not (yad_inst.check_token()):
         print("Token is invalid")
         sys.exit(1)
