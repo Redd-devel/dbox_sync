@@ -1,5 +1,5 @@
 import sys
-from shared_libs.dbox_sync_lib import download, upload
+from shared_libs import download, upload
 
 
 def main():

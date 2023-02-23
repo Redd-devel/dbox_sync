@@ -1,7 +1,7 @@
 import os
 import shutil
 import subprocess
-from shared_libs.dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE, GPG_ID
+from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE, GPG_ID
 
 
 def delete_old_project(folder):

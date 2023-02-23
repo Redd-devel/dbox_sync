@@ -11,9 +11,10 @@ import pytz
 
 from dropbox.exceptions import ApiError, AuthError
 from yadisk.exceptions import YaDiskError
-from shared_libs.dbox_config import WORK_DIR, SOURCE_ITEMS, RETENTION_PEROD
-from shared_libs.fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
+from .dbox_config import WORK_DIR, SOURCE_ITEMS, RETENTION_PEROD
+from .fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
 
+__all__ = ["download", "upload"]
 
 def upload():
     """Copy files, folders to destination"""
