@@ -2,7 +2,7 @@ import argparse
 from shared_libs import download, upload
 
 parser = argparse.ArgumentParser(description='DropBox and Yandex clouds executor')
-parser.add_argument('action', type=str, help='Choose an action', choices=['upload', 'dowload'])
+parser.add_argument('action', type=str, help='Choose an action', choices=['upload', 'download'])
 
 args = parser.parse_args()
 
