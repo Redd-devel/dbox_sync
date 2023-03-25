@@ -2,3 +2,4 @@ dbox_config.py
 *.pyc
 .vscode
 .env
+settings.ini
