@@ -3,3 +3,4 @@ dbox_config.py
 .vscode
 .env
 settings.ini
+conf_parser.py
