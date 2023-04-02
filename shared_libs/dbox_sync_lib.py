@@ -11,11 +11,15 @@ import pytz
 
 from dropbox.exceptions import ApiError, AuthError
 from yadisk.exceptions import YaDiskError
-from .dbox_config import WORK_DIR, SOURCE_ITEMS, RETENTION_PEROD
+# from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE
+from .dbox_config import WORK_DIR, RETENTION_PERIOD
+from .conf_parser import readConfig, path_reconciler
 from .fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
 
 __all__ = ["download", "upload"]
 
+SOURCE_ITEMS = readConfig(path_reconciler())
+print(SOURCE_ITEMS)
 config = dotenv_values('.env')
 
 def upload():
@@ -31,8 +35,8 @@ def upload():
         for source_dir in SOURCE_ITEMS[folder]:
             sync_local_dirs(source_dir, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
-        upload_file_to_cloud(dbx, f'/{folder}', encrypted_file)
-        upload_file_to_cloud_ya(yad, f'/{folder}', encrypted_file)
+        # upload_file_to_cloud(dbx, f'/{folder}', encrypted_file)
+        # upload_file_to_cloud_ya(yad, f'/{folder}', encrypted_file)
     remove_old_files(WORK_DIR)
 
 def download():
@@ -112,7 +116,7 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
     clean_dbox_folder(dbox_instance, dest_folder)
     dbox_list_files(dbox_instance, dest_folder)
 
-def clean_dbox_folder(dbox_instance, dbox_dir, days=RETENTION_PEROD):
+def clean_dbox_folder(dbox_instance, dbox_dir, days=RETENTION_PERIOD):
     """Removes all files in dbox_dir"""
     # reviewed
     time_diff = datetime.datetime.now() - datetime.timedelta(days=days)
@@ -167,7 +171,7 @@ def yad_instance():
     print("Yandex Disk instance successfully created!")
     return yad_inst
 
-def clean_ya_folder(yad_instance, yad_dir, days=RETENTION_PEROD):
+def clean_ya_folder(yad_instance, yad_dir, days=RETENTION_PERIOD):
     """Clean yandex folder"""
     time_diff = datetime.datetime.now() - datetime.timedelta(days=days)
     for file in list(yad_instance.listdir(yad_dir)):

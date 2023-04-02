@@ -1,9 +1,12 @@
 import os
 import shutil
 import subprocess
-from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE
+from .dbox_config import WORK_DIR, CURRENT_DATE
+from .conf_parser import readConfig, path_reconciler
 from dotenv import dotenv_values
 
+
+SOURCE_ITEMS = readConfig(path_reconciler())
 config = dotenv_values(".env")
 
 
