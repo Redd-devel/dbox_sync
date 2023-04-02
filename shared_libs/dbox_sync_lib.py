@@ -35,8 +35,8 @@ def upload():
         for source_dir in SOURCE_ITEMS[folder]:
             sync_local_dirs(source_dir, full_backup_dir)
         encrypted_file = make_encrypted_files(folder)
-        # upload_file_to_cloud(dbx, f'/{folder}', encrypted_file)
-        # upload_file_to_cloud_ya(yad, f'/{folder}', encrypted_file)
+        upload_file_to_cloud(dbx, f'/{folder}', encrypted_file)
+        upload_file_to_cloud_ya(yad, f'/{folder}', encrypted_file)
     remove_old_files(WORK_DIR)
 
 def download():
