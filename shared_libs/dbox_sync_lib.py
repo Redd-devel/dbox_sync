@@ -15,6 +15,7 @@ from yadisk.exceptions import YaDiskError
 from .dbox_config import WORK_DIR, RETENTION_PERIOD
 from .conf_parser import readConfig, path_reconciler
 from .fs_lib import delete_old_project, sync_local_dirs, remove_old_files, make_encrypted_files, keys_list, check_dir, check_gpg_key
+from .rest_api import last_files_finder_rest
 
 __all__ = ["download", "upload"]
 
@@ -46,7 +47,7 @@ def download():
         sys.exit()
     dbx = instantiate_dropbox()
     for item in keys_list():
-        dbox_file = last_files_finder(dbx, item)
+        dbox_file = last_files_finder_rest(item)
         if not dbox_file:
             continue
         filemask = Path(dbox_file).name
@@ -143,6 +144,29 @@ def last_files_finder(dbox_instance, direct):
                 filemask).matches[0].metadata.path_display
         days += 1
     return
+
+#----------------
+def last_files_finder_dev(dbox_instance, direct):
+    """Find last actual file"""
+    # 
+    days=0
+    while days < 182:
+        date_mask = (datetime.date.today() - \
+            datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+        # for item in keys_list():
+            # filemask = item + "_" + date_mask + ".zip.asc"
+        filemask = f"{direct}_{date_mask}.zip.asc"
+        # print(filemask)
+        print(dbox_instance.files_search(f"/{direct}", f"{direct}_20"))
+        break
+        files_array = dbox_instance.files_search(f"/{direct}", f"{direct}_20").matches
+        for item in files_array:
+            print(item.metadata.path_display)
+            if item.metadata.path_display.endswith(filemask):
+                return item.metadata.path_display
+        days += 1
+    return
+#----------------
 
 def dbox_list_files(dbox_instance, dbox_dir, last=6):
     """Files list of destination DropBox folder"""
