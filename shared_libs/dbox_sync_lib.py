@@ -116,7 +116,7 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
             data=f
         )
     if response.ok:
-        data = response.json
+        data = response.json()
         print(f"   📊 Размер: {data['size']:,} байт")
     else:
         print(f"❌ Ошибка {response.status_code}: {response.text}")
