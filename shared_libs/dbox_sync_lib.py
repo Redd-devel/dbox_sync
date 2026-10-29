@@ -94,7 +94,7 @@ def instantiate_dropbox():
                 an access token from the app console on the web.", err)
     return dbx
 
-def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
+def upload_file_to_cloud_mute(dbox_instance, dest_folder, dest_file):
     """Uploads content of backup files to Dropbox"""
     # reviewed, but pay attention to exception handling
     dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
@@ -124,7 +124,7 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
     clean_dbox_folder(dbox_instance, dest_folder)
     dbox_list_files(dbox_instance, dest_folder)
 
-def upload_file_to_cloud_old(dbox_instance, dest_folder, dest_file):
+def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
     """Uploads content of backup files to Dropbox"""
     # reviewed, but pay attention to exception handling
     dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
