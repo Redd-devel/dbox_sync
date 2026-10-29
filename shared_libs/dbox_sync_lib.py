@@ -99,7 +99,7 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
     # reviewed, but pay attention to exception handling
     dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
     headers = {
-        "Authorization": f"Bearer config['DBOX_TOKEN']",
+        "Authorization": f"Bearer {config['DBOX_TOKEN']}",
         "Dropbox-API-Arg": json.dumps({
             "path": dbox_path,
             "mode": "overwrite",
