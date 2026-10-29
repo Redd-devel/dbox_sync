@@ -9,6 +9,9 @@ import shutil
 from dotenv import dotenv_values
 import pytz
 
+import json
+import requests
+
 from dropbox.exceptions import ApiError, AuthError
 from yadisk.exceptions import YaDiskError
 # from .dbox_config import SOURCE_ITEMS, WORK_DIR, CURRENT_DATE
@@ -92,6 +95,36 @@ def instantiate_dropbox():
     return dbx
 
 def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
+    """Uploads content of backup files to Dropbox"""
+    # reviewed, but pay attention to exception handling
+    dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
+    headers = {
+        "Authorization": f"Bearer config['DBOX_TOKEN']",
+        "Dropbox-API-Arg": json.dumps({
+            "path": dbox_path,
+            "mode": "overwrite",
+            "autorename": True,
+            "mute": False
+        }),
+        "Content-Type": "application/octet-stream"
+    }
+    with open(dest_file, 'rb') as f:
+        print("Uploading " + dest_file + " to Dropbox as " + dbox_path + "...")
+        response = requests.post(
+            "https://content.dropboxapi.com/2/files/upload",
+            headers=headers,
+            data=f
+        )
+    if response.ok:
+        data = response.json
+        print(f"   📊 Размер: {data['size']:,} байт")
+    else:
+        print(f"❌ Ошибка {response.status_code}: {response.text}")
+        sys.exit()
+    clean_dbox_folder(dbox_instance, dest_folder)
+    dbox_list_files(dbox_instance, dest_folder)
+
+def upload_file_to_cloud_old(dbox_instance, dest_folder, dest_file):
     """Uploads content of backup files to Dropbox"""
     # reviewed, but pay attention to exception handling
     dbox_path = Path(dest_folder).joinpath(dest_file).__str__()
