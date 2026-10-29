@@ -104,7 +104,7 @@ def upload_file_to_cloud(dbox_instance, dest_folder, dest_file):
             "path": dbox_path,
             "mode": "overwrite",
             "autorename": True,
-            "mute": False
+            "mute": True
         }),
         "Content-Type": "application/octet-stream"
     }
